@@ -3,6 +3,7 @@ script:
 create a CLM5 case over the UCPR watershed
 
 inputdata:
+
 domain data: domain.lnd.1kmx1km_UCPR_c20190605.nc
 
 
