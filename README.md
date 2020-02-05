@@ -7,4 +7,4 @@ domain data
 surface data
 
 other script:
-see the repo 
+see the repo UCPR-FORM-CDL-PFTs
