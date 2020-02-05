@@ -179,6 +179,4 @@ sed -i '/ZBOT/d' ${CESM_CASE_DIR}/${CESM_CASE_NAME}/user_datm.streams.txt.CLM1PT
 
 # Running case :
 #./case.submit
-#echo ''
-#echo 'case submitted'
-#echo ''
+
