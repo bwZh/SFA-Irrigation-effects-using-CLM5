@@ -1,0 +1,199 @@
+# compare the irrigation effects timeseries
+library(ncdf4)
+
+#setwd("D:\\ZBW\\Watershed\\")
+clm_data_irri="Y:\\cesm_archive\\1kmx1km_UCPR-I2000Clm50SpGs-UCPR-wwrainfed-calibration3-2019-10-09\\lnd\\hist\\"
+clm_data_rain="Y:\\cesm_archive\\1kmx1km_UCPR-I2000Clm50SpGs-UCPR-noirrigated-calibration3-2019-07-15\\lnd\\hist\\"
+clm_result_name_rain=list.files(clm_data_rain,full.names = TRUE)
+clm_result_name_irri=list.files(clm_data_irri,full.names = TRUE)
+n=4656
+landunit=array(0,c(n,9))
+natveg=array(0,c(n,15))
+cft=array(0,c(n,64))
+result=array(0,c(n,44))
+sim_result=array(0,c(3285,44))
+sim_corn_result=array(0,c(3285,44))
+sim_corn2_result=array(0,c(3285,44))
+sim_crop_result=array(0,c(3285,44))
+sim_soybean_result=array(0,c(3285,44))
+sim_soybean2_result=array(0,c(3285,44))
+# spatial=array(0,c(60,60))
+temp1=array(0,c(n,20))
+temp2=array(0,c(n,20))
+
+v=seq(1,3285)
+
+for (i in v){
+  print(i)
+  nc_rain=nc_open(clm_result_name_rain[i])
+  nc_irri=nc_open(clm_result_name_irri[i])
+  landunit=ncvar_get(nc=nc_rain,varid = 'PCT_LANDUNIT')
+  cft=ncvar_get(nc=nc_rain,varid = 'PCT_CFT')
+# landunit :1 is vegetation; 2 is crop
+
+  result[,1]=ncvar_get(nc=nc_rain,varid='QFLX_EVAP_TOT')
+  result[,2]=ncvar_get(nc=nc_irri,varid='QFLX_EVAP_TOT')
+  result[,3]=ncvar_get(nc=nc_rain,varid='NFERTILIZATION')
+  result[,4]=ncvar_get(nc=nc_irri,varid='NFERTILIZATION')
+  result[,5]=ncvar_get(nc=nc_rain,varid='LITFALL')
+  result[,6]=ncvar_get(nc=nc_irri,varid='LITFALL')
+  result[,7]=ncvar_get(nc=nc_rain,varid='PSNSHADE_TO_CPOOL')
+  result[,8]=ncvar_get(nc=nc_irri,varid='PSNSHADE_TO_CPOOL')  
+  result[,9]=ncvar_get(nc=nc_rain,varid='PSNSUN_TO_CPOOL')
+  result[,10]=ncvar_get(nc=nc_irri,varid='PSNSUN_TO_CPOOL')
+  result[,11]=ncvar_get(nc=nc_rain,varid='GPP')
+  result[,12]=ncvar_get(nc=nc_irri,varid='GPP')  
+  result[,13]=ncvar_get(nc=nc_rain,varid='NEE')
+  result[,14]=ncvar_get(nc=nc_irri,varid='NEE')
+  result[,15]=ncvar_get(nc=nc_rain,varid='AR')
+  result[,16]=ncvar_get(nc=nc_irri,varid='AR')
+  result[,17]=ncvar_get(nc=nc_rain,varid='HR')
+  result[,18]=ncvar_get(nc=nc_irri,varid='HR')
+  result[,19]=ncvar_get(nc=nc_rain,varid='ER')
+  result[,20]=ncvar_get(nc=nc_irri,varid='ER')
+  result[,21]=ncvar_get(nc=nc_rain,varid='DENIT')
+  result[,22]=ncvar_get(nc=nc_irri,varid='DENIT')
+  result[,23]=ncvar_get(nc=nc_rain,varid='NET_NMIN')
+  result[,24]=ncvar_get(nc=nc_irri,varid='NET_NMIN')
+  result[,25]=ncvar_get(nc=nc_rain,varid='SMINN')
+  result[,26]=ncvar_get(nc=nc_irri,varid='SMINN') 
+  result[,27]=ncvar_get(nc=nc_rain,varid='SMINN_TO_PLANT')
+  result[,28]=ncvar_get(nc=nc_irri,varid='SMINN_TO_PLANT')
+  result[,29]=ncvar_get(nc=nc_rain,varid='SMINN_TO_NPOOL')
+  result[,30]=ncvar_get(nc=nc_irri,varid='SMINN_TO_NPOOL')  
+  result[,31]=ncvar_get(nc=nc_rain,varid='SMIN_NO3_LEACHED')
+  result[,32]=ncvar_get(nc=nc_irri,varid='SMIN_NO3_LEACHED')
+  result[,33]=ncvar_get(nc=nc_rain,varid='SMIN_NO3_RUNOFF')
+  result[,34]=ncvar_get(nc=nc_irri,varid='SMIN_NO3_RUNOFF')
+  result[,35]=ncvar_get(nc=nc_rain,varid='NUPTAKE')
+  result[,36]=ncvar_get(nc=nc_irri,varid='NUPTAKE')
+  result[,37]=ncvar_get(nc=nc_rain,varid='SMIN_NO3')
+  result[,38]=ncvar_get(nc=nc_irri,varid='SMIN_NO3')
+  result[,39]=ncvar_get(nc=nc_rain,varid='SMIN_NH4')
+  result[,40]=ncvar_get(nc=nc_irri,varid='SMIN_NH4')
+  result[,41]=ncvar_get(nc=nc_rain,varid='ACTUAL_IMMOB')
+  result[,42]=ncvar_get(nc=nc_irri,varid='ACTUAL_IMMOB')
+  result[,43]=ncvar_get(nc=nc_rain,varid='SOILC_HR')
+  result[,44]=ncvar_get(nc=nc_irri,varid='SOILC_HR') 
+  
+  index=which(landunit[,2]>=0 )
+  index_crop=which(landunit[,2]>60)
+  index_corn=which(landunit[,2]>60 & cft[,4]>60)
+  index_soybean=which(landunit[,2]>60 & cft[,10]>60)
+
+  # fluxes:such as ET and GPP should mutiple by 3600*24
+  
+   result[2926,1:12]=result[2925,1:12]
+  for (j in seq(1,44)){
+    sim_result[i,j]=mean(result[index,j])
+    sim_crop_result[i,j]=mean(result[index_crop,j])
+    sim_corn_result[i,j]=(result[index_corn[1],j])
+    sim_corn2_result[i,j]=(result[index_corn[71],j])
+    sim_soybean_result[i,j]=(result[index_soybean[1],j])
+    sim_soybean2_result[i,j]=(result[index_soybean[370],j])
+  }
+
+  nc_close(nc_irri)
+  nc_close(nc_rain)
+
+} 
+
+
+surface_file=nc_open("D:\\ZBW\\Watershed\\NEW\\surfdata.1kmx1km_UCPRwwfertilizer_c20190605.nc")
+soil_clay=ncvar_get(surface_file,'PCT_CLAY')
+soil_sand=ncvar_get(surface_file,'PCT_SAND')
+organic=ncvar_get(surface_file,'ORGANIC')
+nc_close(surface_file)
+print(soil_clay[index_corn[1]])
+print(soil_clay[index_corn[71]])
+print(soil_sand[index_corn[1]])
+print(soil_sand[index_corn[71]])
+print(organic[index_corn[1]])
+print(organic[index_corn[71]])
+
+print(soil_clay[index_soybean[1]])
+print(soil_clay[index_soybean[370]])
+print(soil_sand[index_soybean[1]])
+print(soil_sand[index_soybean[370]])
+print(organic[index_soybean[1]])
+print(organic[index_soybean[370]])
+
+
+write.table(sim_result[,1:44],"D:\\ZBW\\Watershed\\NEW\\irrigation\\irrigation_new\\watershed.txt")
+write.table(sim_result[,7:8],"D:\\ZBW\\Watershed\\NEW\\irrigation\\irrigation_new\\watershed\\TWS.txt")
+write.table(sim_result[,9:10],"D:\\ZBW\\Watershed\\NEW\\irrigation\\irrigation_new\\watershed\\ZWT.txt")
+write.table(sim_crop_result[,9:10],"D:\\ZBW\\Watershed\\NEW\\irrigation\\irrigation_new\\cropZWT.txt")
+write.table(sim_crop_result[,1:44],"D:\\ZBW\\Watershed\\NEW\\irrigation\\irrigation_new\\crop.txt")
+# monthly results
+monthly_results=array(0,c(2,12))
+ 
+for (m in seq(1,12)){
+  sim_result_month_rain=array(sim_soybean_result[,12],c(365,9))
+  sim_result_month_irri=array(sim_soybean2_result[,12],c(365,9))
+  monthly_results[1,m]=mean(sim_result_month_rain[((m-1)*30+1):((m-1)*30+30),])
+  monthly_results[2,m]=mean(sim_result_month_irri[((m-1)*30+1):((m-1)*30+30),])
+}
+monthly_results[1,]
+monthly_results[2,]
+
+plot(monthly_results[1,]*3600*24,type='l')
+lines(monthly_results[2,]*3600*24,col='blue')
+
+
+ write.table(monthly_results,"D:\\ZBW\\Watershed\\NEW\\irrigation\\irrigation_new\\watershed\\monthly_TOTSOMN.txt")
+
+ # yearly results
+
+sim_result=as.matrix(read.table("D:\\ZBW\\Watershed\\NEW\\irrigation\\irrigation_new\\watershed.txt"))
+yearly_results=array(0,c(2,9))
+for (k in seq(1,9)){
+  yearly_results[1,k]=mean(sim_result[((k-1)*365+1):((k-1)*365+365),43])
+  yearly_results[2,k]=mean(sim_result[((k-1)*365+1):((k-1)*365+365),44])*3600*24*365
+}
+
+write.table(yearly_results,"D:\\ZBW\\Watershed\\NEW\\irrigation\\irrigation_new\\monthly\\monthly_TOTECOSYSN.txt")
+color=c("blue","green")
+barplot(yearly_results,xlab = "year",ylab = "Irrigation mm/yr",ylim=c(0,700),names.arg=seq(2010,2018),col=color,beside=TRUE)
+legend("topright",legend = c("no irrigation","irrigation"),col=color,fill = color,cex=1.0,box.lty = 0)
+legend("top",legend = c("crop"),cex=1.0,box.lty = 0)
+
+runoff_irri=sim_result[,2]+sim_result[,4]
+runoff_rain=sim_result[,1]+sim_result[,3]
+
+# plot monthly
+plot(seq(1,12,length.out = 12),monthly_results[1,],type="l",col="blue",ylim=c(610,625),xlab = "month",ylab = "gC/m2/mon")
+lines(seq(1,12,length.out = 12),monthly_results[2,],type="l",col="green")
+legend(1,25,legend = c("no irrigation","irrigation"), col=c("blue","green"),lty=1:1,cex=1.0,box.lty = 0)
+
+# plot the timeseries 
+diff_LITC=sim_result[,2]-sim_result[,1]
+diff_SMOC=sim_result[,4]-sim_result[,3]
+diff_PFTC=sim_result[,6]-sim_result[,5]
+plot(seq(2010,2019,length.out = 3285),diff_LITC,type="l",col="blue",ylim=c(-5,10),xlab = "year",ylab = "gN/m2")
+lines(seq(2010,2019,length.out = 3285),diff_SMOC,type="l",col="green")
+lines(seq(2010,2019,length.out = 3285),diff_PFTC,type="l",col="red")
+legend(2010,10,legend = c("TOTLITN changes","TOTSMON changes","TOTPFTN changes"), col=c("blue","green","red"),lty=1:1,cex=1.0,box.lty = 0)
+legend(2016,10,legend = c("TOTSMOC"),cex=1.5,box.lty = 0)
+
+plot(seq(2010,2019,length.out = 3285),sim_result[,43],type="l",col="blue"
+     ,xlab = "year",ylab = "NEE gC/m2/day",xaxt="n")
+lines(seq(2010,2019,length.out = 3285),sim_result[,44],type="l",col="green")
+axis(1,at=seq(2010,2018,by=1))
+legend(2010,5,legend = c("no irrigation","irrigation"), col=c("blue","green"),lty=1:1,cex=1.0,box.lty = 0)
+
+
+plot(seq(2010,2019,length.out = 3285),sim_corn_result[,1],type="l",col="blue",ylim=c(300,800),xlab = "year",ylab = "gC/m2/day")
+lines(seq(2010,2019,length.out = 3285),sim_corn_result[,2],type="l",col="green")
+legend(2010,300,legend = c("no irrigation","irrigation"), col=c("blue","green"),lty=1:1,cex=1.0,box.lty = 0)
+
+
+plot(seq(2010,2019,length.out = 3285),sim_wheat_result[,1],type="l",col="blue",ylim=c(300,600),xlab = "year",ylab = "gN/m2")
+lines(seq(2010,2019,length.out = 3285),sim_wheat_result[,2],type="l",col="green")
+legend(2010,600,legend = c("noirrigation","irrigation"), col=c("blue","green"),lty=1:1,cex=1.0,box.lty = 0)
+legend(2017,600,legend = c("wheat"),cex=1.5,box.lty = 0)
+
+plot(seq(2010,2019,length.out = 3285),sim_soybean_result[,1],type="l",col="blue",ylim=c(580,1800),xlab = "year",ylab = "gN/m2")
+lines(seq(2010,2019,length.out = 3285),sim_soybean_result[,2],type="l",col="green")
+legend(2010,1800,legend = c("noirrigation","irrigation"), col=c("blue","green"),lty=1:1,cex=1.0,box.lty = 0)
+legend(2016.5,1800,legend = c("soybean"),cex=1.5,box.lty = 0)
+
